@@ -1,0 +1,54 @@
+function n_img=my_filter(img,method,f)  %中值滤波和高斯滤波
+    if(strcmp(method,'median'))
+       n_img=medfilt2(img,[f,f]);
+    end
+    if(strcmp(method,'gaussian'))
+        model=fspecial('gaussian',[f,f]);
+        n_img=imfilter(img,model,'replicate');
+    end
+     subplot(121);
+     imshow(img);
+     title('original image');
+     subplot(122);
+     imshow(n_img);
+     title('image after filering');
+end
+
+function mod=creat_guassian_mod(sigma,f)%生成高斯模板
+mod=zeros(f,f);
+s=floor(f/2)+1;
+for i =1:f
+    for j=1:f
+        mod(i,j)=exp(-((i-s)^2+(j-s)^2)/(2*sigma^2));
+    end
+end
+mod=mod/sum(mod(:));
+end
+  
+
+function n_img=my_highpass_filter(or_im,method,k,f)%边缘检测
+if(strcmp('unsharp masking',method))
+    mod=fspecial('gaussian',[f,f],4);
+    vague_im=imfilter(or_im,mod,'replicate');
+    sharp_im=imsubtract(or_im,vague_im);
+    figure;
+    imshow(sharp_im);
+    n_img=or_im+k*sharp_im;
+end
+if(strcmp('sobel',method))
+    n_img=edge(or_im,'Sobel');
+end
+if(strcmp('canny',method))
+    n_img=edge(or_im,'Canny');
+end
+if(strcmp('laplacian',method))
+    n_img=edge(or_im,'log');
+end
+figure;
+subplot(121);
+imshow(or_im);
+title('original image');
+subplot(122);
+imshow(n_img);
+title('final image');
+end
